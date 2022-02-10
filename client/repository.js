@@ -10,7 +10,7 @@ module.exports = class Repository extends Base {
     this.schema = {
       id: {
         type: Sequelize.BIGINT,
-        primaryKey: true
+        primaryKey: true,
       },
       name: Sequelize.STRING,
       owner: Sequelize.STRING,
@@ -24,13 +24,17 @@ module.exports = class Repository extends Base {
       size: Sequelize.INTEGER,
       open_issues: Sequelize.INTEGER,
       watchers: Sequelize.INTEGER,
+
       type: {
         type: Sequelize.STRING,
-        defaultValue: 'internal'
+        defaultValue: 'internal',
       },
+
       fork: Sequelize.BOOLEAN,
       archived: Sequelize.BOOLEAN,
-      team_id: Sequelize.STRING
+      disabled: Sequelize.BOOLEAN,
+      private: Sequelize.BOOLEAN,
+      visibility: Sequelize.STRING,
     };
 
     this.map = {
@@ -50,7 +54,9 @@ module.exports = class Repository extends Base {
 
       fork: 'fork',
       archived: 'archived',
-      team_id: 'team_id'
+      disabled: 'disabled',
+      private: 'private',
+      visibility: 'visibility',
     };
 
     this.name = 'Repository';
@@ -62,7 +68,7 @@ module.exports = class Repository extends Base {
     this.model.hasMany(this.dbClient.models.Contribution);
 
     this.model.belongsToMany(this.dbClient.models.Topic, {
-      through: 'RepositoryTopic'
+      through: 'RepositoryTopic',
     });
 
     this.model.belongsTo(this.dbClient.models.Organisation);
@@ -71,7 +77,9 @@ module.exports = class Repository extends Base {
   }
 
   async getAll(orgName) {
-    return await this.ghClient.getRepos(orgName);
+    const repos = await this.ghClient.getRepos(orgName);
+    const filtered = repos.filter((x) => !x.fork);
+    return filtered;
   }
 
   async getRepo(orgName, repo) {

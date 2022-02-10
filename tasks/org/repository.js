@@ -1,6 +1,6 @@
 var util = require('../../util.js');
 
-module.exports = async function(org, context, config) {
+module.exports = async function (org, context, config) {
   console.log(`  ⬇️   Downloading ${org.login} repositories`);
 
   // Get all repositories in the org and save them

@@ -9,7 +9,7 @@ module.exports = class GithubClient {
     this.api = {
       organisations: `${this.url}/organizations`,
       userOrganisations: `${this.url}/user/orgs`,
-      organisation: org => {
+      organisation: (org) => {
         return `${this.url}/orgs/${org}`;
       },
 
@@ -17,8 +17,8 @@ module.exports = class GithubClient {
         return `${this.url}/rate_limit`;
       },
 
-      repositories: org => {
-        return `${this.url}/orgs/${org}/repos?type=sources`;
+      repositories: (org) => {
+        return `${this.url}/orgs/${org}/repos?type=all`;
       },
 
       repository: (org, repo) => {
@@ -39,7 +39,7 @@ module.exports = class GithubClient {
       issuesForRepo: (org, repo, state = 'all') => {
         return `${this.url}/repos/${org}/${repo}/issues?state=${state}`;
       },
-      members: org => {
+      members: (org) => {
         return `${this.url}/orgs/${org}/members`;
       },
       communityProfile: (owner, name) => {
@@ -51,7 +51,7 @@ module.exports = class GithubClient {
       branchProtection: (owner, name, branch = 'master') => {
         return `${this.url}/repos/${owner}/${name}/branches/${branch}/protection`;
       },
-      externalCollaboratorsForOrg: org => {
+      externalCollaboratorsForOrg: (org) => {
         return `${this.url}/orgs/${org}/outside_collaborators`;
       },
       collaborators: (org, repo) => {
@@ -72,41 +72,41 @@ module.exports = class GithubClient {
         return `${this.url}/repos/${org}/${repo}/releases`;
       },
 
-      memberEvents: member => {
+      memberEvents: (member) => {
         return `${this.url}/users/${member}/events/public`;
       },
 
-      memberRepositories: member => {
+      memberRepositories: (member) => {
         return `${this.url}/users/${member}/repos?type=owner`;
       },
 
       fileContents: (org, repo, path) => {
         return `${this.url}/repos/${org}/${repo}/contents/${path}`;
-      }
+      },
     };
 
     this.headers = { authorization: `token ${token}` };
     this.requestorTemplate = ghrequestor.defaults({
       headers: this.headers,
-      logger: this.logger()
+      logger: this.logger(),
     });
 
     this.previewHeaders = {
       ...this.headers,
-      accept: 'application/vnd.github.black-panther-preview+json'
+      accept: 'application/vnd.github.black-panther-preview+json',
     };
 
     this.requestorTemplatePreview = ghrequestor.defaults({
       headers: this.previewHeaders,
-      logger: this.logger()
+      logger: this.logger(),
     });
 
     this.requestorTemplateTopicPreview = ghrequestor.defaults({
       headers: {
         ...this.headers,
-        accept: 'application/vnd.github.mercy-preview+json'
+        accept: 'application/vnd.github.mercy-preview+json',
       },
-      logger: this.logger()
+      logger: this.logger(),
     });
   }
 
@@ -116,9 +116,9 @@ module.exports = class GithubClient {
     return ghrequestor.defaults({
       headers: {
         ...h,
-        accept: accceptHeader
+        accept: accceptHeader,
       },
-      logger: this.logger()
+      logger: this.logger(),
     });
   }
 
@@ -205,12 +205,12 @@ module.exports = class GithubClient {
           owner: org,
           headers: {
             authorization: 'token ' + this.token,
-            accept: 'application/vnd.github.vixen-preview+json'
-          }
+            accept: 'application/vnd.github.vixen-preview+json',
+          },
         }
       );
 
-      return response.organization.repositories.edges.map(x => x.node);
+      return response.organization.repositories.edges.map((x) => x.node);
     } catch (e) {
       console.log(e);
       return new Error(e);
@@ -237,17 +237,18 @@ module.exports = class GithubClient {
   }
 
   async getRepos(org) {
-    const response = await this.requestorTemplate.get(
+    const response = await this.requestorTemplate.getAll(
       this.api.repositories(org)
     );
-    return response.body;
+
+    return response;
   }
 
   async getReleases(org, repo) {
-    const response = await this.requestorTemplate.get(
+    const response = await this.requestorTemplate.getAll(
       this.api.releasesForRepo(org, repo)
     );
-    return response.body;
+    return response;
   }
 
   async getPullRequests(org, repo) {
@@ -288,7 +289,7 @@ module.exports = class GithubClient {
       ? this.requestorTemplate
       : ghrequestor.defaults({
           headers: this.headers,
-          logger: logger
+          logger: logger,
         });
 
     return await template.getAll(this.api.members(org));
@@ -355,9 +356,19 @@ module.exports = class GithubClient {
   }
 
   async getContributions(org, repo) {
-    return await this.requestorTemplate.getAll(
-      this.api.contributorsForRepo(org, repo)
-    );
+    try {
+      var result = await this.requestorTemplate.getAll(
+        this.api.contributorsForRepo(org, repo)
+      );
+
+      if (result && result.length) {
+        return result;
+      } else {
+        return [];
+      }
+    } catch (ex) {
+      return [];
+    }
   }
 
   async getContributionStats(org, repo) {
@@ -383,6 +394,14 @@ module.exports = class GithubClient {
       result.log = log;
     } else {
       result.log = (level, message, data) => {
+        if (data && data.statusCode === 204) {
+          console.error(
+            `\n\n  ⚠️   Github Error: ${data.statusCode} \n 
+      ${data.target} \n
+      ${data.message} \n\n`
+          );
+        }
+
         if (level === 'error') {
           console.error(
             `\n\n  ⚠️   Github Error: ${data.statusCode} \n 
