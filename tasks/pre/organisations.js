@@ -1,6 +1,6 @@
 var util = require('../../util.js');
 
-module.exports = async function(context, config) {
+module.exports = async function (context, config) {
   var orgs = await context.client.Organisation.getForUser();
 
   if (!orgs || !orgs.length) {
@@ -8,18 +8,16 @@ module.exports = async function(context, config) {
   }
 
   var orgsToQuery = orgs
-    .map(x => x.login)
-    .concat(config.orgs.filter(x => x !== '*'))
+    .map((x) => x.login)
+    .concat(config.orgs.filter((x) => x !== '*'))
     .filter(util.uniqueFilter);
 
   for (let orgName of orgsToQuery) {
     if (util.runTask(orgName, config.orgs)) {
-      console.log(`  ⬇️   Downloading ${orgName}`);
-
       var details = await context.client.Organisation.getDetails(orgName);
       if (details && details.type === 'Organization') {
         details = await context.client.Organisation.saveOrUpdate(details);
-        console.log(`  💾   Saved ${orgName}`);
+        console.log(` ✓ Downloaded and saved ${orgName} github organisation`);
       }
     }
   }

@@ -71,7 +71,7 @@ module.exports = class Bootstrap {
     );
     context.database = await new DatabaseClient(config.db).db();
 
-    var externalClients = this._getClients().map(x => {
+    var externalClients = this._getClients().map((x) => {
       return { file: x, obj: require(x) };
     });
 
@@ -86,21 +86,41 @@ module.exports = class Bootstrap {
     context.ui = {};
     context.tasks = {};
 
-    context.tasks.pre = this._getTasks('pre', config.tasks).map(x =>
-      require(x)
-    );
-    context.tasks.org = this._getTasks('org', config.tasks).map(x =>
-      require(x)
-    );
-    context.tasks.repo = this._getTasks('repo', config.tasks).map(x =>
-      require(x)
-    );
-    context.tasks.post = this._getTasks('post', config.tasks).map(x =>
-      require(x)
-    );
-    context.tasks.metrics = this._getTasks('metrics', config.tasks).map(x =>
-      require(x)
-    );
+    context.tasks.pre = this._getTasks('pre', config.tasks).map((x) => {
+      return {
+        func: require(x),
+        path: x,
+        alias: path.basename(x),
+      };
+    });
+    context.tasks.org = this._getTasks('org', config.tasks).map((x) => {
+      return {
+        func: require(x),
+        path: x,
+        alias: path.basename(x),
+      };
+    });
+    context.tasks.repo = this._getTasks('repo', config.tasks).map((x) => {
+      return {
+        func: require(x),
+        path: x,
+        alias: path.basename(x),
+      };
+    });
+    context.tasks.post = this._getTasks('post', config.tasks).map((x) => {
+      return {
+        func: require(x),
+        path: x,
+        alias: path.basename(x),
+      };
+    });
+    context.tasks.metrics = this._getTasks('metrics', config.tasks).map((x) => {
+      return {
+        func: require(x),
+        path: x,
+        alias: path.basename(x),
+      };
+    });
     return context;
   }
 
@@ -133,7 +153,7 @@ module.exports = class Bootstrap {
     var globalPath = this.roadblockDir + '/tasks/' + dir + '/';
     var localPath = this.localDir + '/' + dir + '/';
 
-    var allowTask = function(filename) {
+    var allowTask = function (filename) {
       var key = (dir + '/' + filename.replace('.js', '')).toLowerCase();
 
       if (filter.indexOf(`!${dir}/*`) > -1) return false;
@@ -168,7 +188,7 @@ module.exports = class Bootstrap {
     if (fs.existsSync(localPath)) {
       for (const file of fs
         .readdirSync(localPath)
-        .filter(x => path.extname(x) === '.js')) {
+        .filter((x) => path.extname(x) === '.js')) {
         tasks.push(localPath + file);
       }
     }

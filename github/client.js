@@ -83,6 +83,10 @@ module.exports = class GithubClient {
       fileContents: (org, repo, path) => {
         return `${this.url}/repos/${org}/${repo}/contents/${path}`;
       },
+
+      user: (user) => {
+        return `${this.url}/users/${user}`;
+      },
     };
 
     this.headers = { authorization: `token ${token}` };
@@ -137,6 +141,12 @@ module.exports = class GithubClient {
     const response = await this.requestorTemplate.get(
       this.api.repository(org, repo)
     );
+
+    return response.body;
+  }
+
+  async getUser(user) {
+    const response = await this.requestorTemplate.get(this.api.user(user));
 
     return response.body;
   }

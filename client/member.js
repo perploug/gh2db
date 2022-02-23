@@ -9,26 +9,36 @@ module.exports = class Member extends Base {
     this.schema = {
       id: {
         type: Sequelize.BIGINT,
-        primaryKey: true
+        primaryKey: true,
       },
       avatar: Sequelize.STRING(400),
       login: Sequelize.STRING(100),
       url: Sequelize.STRING,
 
+      name: Sequelize.STRING(400),
+      email: Sequelize.STRING(400),
+      company: Sequelize.STRING(400),
+      location: Sequelize.STRING(400),
+      bio: Sequelize.TEXT,
+
       employee_id: Sequelize.BIGINT,
       employee_login: Sequelize.STRING,
       employee_title: Sequelize.STRING,
-      name: Sequelize.STRING,
-      email: Sequelize.STRING,
       department: Sequelize.STRING,
-      team: Sequelize.STRING
+      team: Sequelize.STRING,
     };
 
     this.map = {
       id: 'id',
       avatar_url: 'avatar',
       html_url: 'url',
-      login: 'login'
+      login: 'login',
+
+      name: 'name',
+      email: 'email',
+      company: 'company',
+      location: 'location',
+      bio: 'bio',
     };
 
     // this is still fairly lowlevel - if you need to instatiate this,
@@ -39,7 +49,7 @@ module.exports = class Member extends Base {
 
   sync(force) {
     this.model.belongsToMany(this.dbClient.models.Organisation, {
-      through: 'MemberOrganisation'
+      through: 'MemberOrganisation',
     });
 
     super.sync(force);
@@ -58,9 +68,11 @@ module.exports = class Member extends Base {
   async saveOrUpdate(member, organisation) {
     const dbMember = mapper(member, this.map);
 
-    await this.model.findOrCreate({ where: dbMember }).spread(createdMember => {
-      return organisation.addMember(createdMember);
-    });
+    await this.model
+      .findOrCreate({ where: dbMember })
+      .spread((createdMember) => {
+        return organisation.addMember(createdMember);
+      });
   }
 
   async bulkCreate(members, organisation) {

@@ -16,8 +16,9 @@ const Vulnerability = require('./vulnerability.js');
 const Blame = require('./blame.js');
 
 const Base = require('./base.js');
+const Dependents = require('./dependents.js');
 
-module.exports = async function(
+module.exports = async function (
   github,
   database,
   reset = false,
@@ -52,6 +53,9 @@ module.exports = async function(
 
   s.Contribution = new Contribution(github, database);
   s.Contribution.define();
+
+  s.Dependents = new Dependents(github, database);
+  s.Dependents.define();
 
   s.Issue = new Issue(github, database);
   s.Issue.define();
@@ -94,6 +98,7 @@ module.exports = async function(
   s.PullRequest.sync(reset);
   s.Commit.sync(reset);
   s.Contribution.sync(reset);
+  s.Dependents.sync(reset);
   s.Issue.sync(reset);
   s.CommunityProfile.sync(reset);
   s.ExternalContribution.sync(reset);

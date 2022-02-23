@@ -1,8 +1,6 @@
 var util = require('../../util.js');
 
-module.exports = async function(org, context, config) {
-  console.log(`  ⬇️   Downloading ${org.login} vulnerability alerts`);
-
+module.exports = async function (org, context, config) {
   // Get all repositories in the org and save them
   var alerts = await context.client.Vulnerability.getAll(org.login);
   for (const repo of alerts) {
@@ -12,13 +10,15 @@ module.exports = async function(org, context, config) {
     var vulns = repo.vulnerabilityAlerts.edges;
 
     if (vulns.length > 0) {
-      await context.client.Vulnerability.bulkCreate(vulns.map(x => x.node), {
-        repository_id: int_id
-      });
+      await context.client.Vulnerability.bulkCreate(
+        vulns.map((x) => x.node),
+        {
+          repository_id: int_id,
+        }
+      );
     }
   }
-  console.log(`  ✅   Saving ${org.login} alerts`);
-  util.timePassed(context.start);
+  console.log(` ✓ Saving ${org.login} vulnerability alerts`);
 
   return;
 };
