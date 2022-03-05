@@ -3,6 +3,17 @@ const Bootstrap = require('./app/bootstrap.js');
 
 var app;
 
+Object.defineProperty(Array.prototype, 'chunk', {
+  value: function(chunkSize) {
+    var array = this;
+    return [].concat.apply([],
+      array.map(function(elem, i) {
+        return i % chunkSize ? [] : [array.slice(i, i + chunkSize)];
+      })
+    );
+  }
+});
+
 async function init() {
   var args = process.argv.slice(2);
   app = new Bootstrap(process.cwd(), __dirname);
@@ -32,7 +43,7 @@ async function run(config, context) {
 
     for (const task of context.tasks.pre) {
       var result = await task.func(context, config);
-      console.log(` ✓ ${task.alias} complete`);
+      console.log(` ✓ task:${task.alias} complete`);
     }
   }
 
@@ -48,7 +59,7 @@ async function run(config, context) {
     for (const org of orgs) {
       for (const orgTaskFunc of context.tasks.org) {
         var result = await orgTaskFunc.func(org, context, config);
-        console.log(` ✓ ${orgTaskFunc.alias} complete `);
+        console.log(` ✓ task:${orgTaskFunc.alias} complete `);
       }
     }
   }
@@ -66,28 +77,39 @@ async function run(config, context) {
       console.log(
         `Running ${context.tasks.repo.length} repository tasks on ${repositories.length} imported github repositories`
       );
+      
+      const chunkedRepos = repositories.chunk(10);
 
       for (const repoTaskFunc of context.tasks.repo) {
         var task_queue = [];
+        
+        process.stdout.write(` ⧖ task:${repoTaskFunc.alias}`);
+        
+        for(const repoChunk of chunkedRepos){
 
-        console.log(` ✓ ${repoTaskFunc.alias} starting `);
-        for (const repository of repositories) {
-          context.externalValuesMap = { repository_id: repository.id };
-
-          // dumb exception
-          if (repoTaskFunc.alias === 'dependents.js') {
-            await repoTaskFunc.func(repository, context, config);
-          } else {
-            task_queue.push(repoTaskFunc.func(repository, context, config));
+          for (const repository of repoChunk) {
+            context.externalValuesMap = { repository_id: repository.id };
+  
+            // dumb exception
+            if (repoTaskFunc.alias === 'dependents') {
+              await repoTaskFunc.func(repository, context, config);
+            } else {
+              task_queue.push(repoTaskFunc.func(repository, context, config));
+            }
           }
+  
+          await Promise.all(task_queue);
+          process.stdout.write(".");
+
         }
 
-        await Promise.all(task_queue);
-        console.log(` ✓ ${repoTaskFunc.alias} task done `);
+        process.stdout.clearLine(0);
+        process.stdout.cursorTo(0);
+        process.stdout.write(` ✓ task:${repoTaskFunc.alias} complete \n`);
       }
     } else {
       console.log('');
-      console.log('No repositories downloaded');
+      console.log(' x  No repositories downloaded');
     }
   }
 
@@ -108,6 +130,7 @@ async function run(config, context) {
     );
     for (const task of context.tasks.metrics) {
       await task.func(context, config);
+      console.log(` ✓ task:${task.alias} complete `);
     }
   }
 

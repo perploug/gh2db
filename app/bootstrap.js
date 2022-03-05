@@ -90,35 +90,35 @@ module.exports = class Bootstrap {
       return {
         func: require(x),
         path: x,
-        alias: path.basename(x),
+        alias:  path.parse(x).name,
       };
     });
     context.tasks.org = this._getTasks('org', config.tasks).map((x) => {
       return {
         func: require(x),
         path: x,
-        alias: path.basename(x),
+        alias: path.parse(x).name,
       };
     });
     context.tasks.repo = this._getTasks('repo', config.tasks).map((x) => {
       return {
         func: require(x),
         path: x,
-        alias: path.basename(x),
+        alias:  path.parse(x).name,
       };
     });
     context.tasks.post = this._getTasks('post', config.tasks).map((x) => {
       return {
         func: require(x),
         path: x,
-        alias: path.basename(x),
+        alias:  path.parse(x).name,
       };
     });
     context.tasks.metrics = this._getTasks('metrics', config.tasks).map((x) => {
       return {
         func: require(x),
         path: x,
-        alias: path.basename(x),
+        alias:  path.parse(x).name,
       };
     });
     return context;

@@ -1,7 +1,5 @@
 module.exports = async function(repo, context, config) {
-  context.ui.bar.increment(0, {
-    state: "Running 'Collaborators on: " + repo.name
-  });
+  
 
   await context.client.Collaborator.destroy(repo.id);
 

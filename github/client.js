@@ -403,7 +403,10 @@ module.exports = class GithubClient {
     if (log) {
       result.log = log;
     } else {
+
       result.log = (level, message, data) => {
+
+       
         if (data && data.statusCode === 204) {
           console.error(
             `\n\n  ⚠️   Github Error: ${data.statusCode} \n 
