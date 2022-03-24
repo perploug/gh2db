@@ -7,6 +7,6 @@ module.exports = async function(context, config) {
 
   // Finally when everything has been saved to the Database,
   // extract json files with the full dataset
-  context.exportClient.export();
+  await context.exportClient.export();
   return true;
 };

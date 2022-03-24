@@ -90,7 +90,7 @@ module.exports = class Bootstrap {
       return {
         func: require(x),
         path: x,
-        alias:  path.parse(x).name,
+        alias: path.parse(x).name,
       };
     });
     context.tasks.org = this._getTasks('org', config.tasks).map((x) => {
@@ -104,21 +104,21 @@ module.exports = class Bootstrap {
       return {
         func: require(x),
         path: x,
-        alias:  path.parse(x).name,
+        alias: path.parse(x).name,
       };
     });
     context.tasks.post = this._getTasks('post', config.tasks).map((x) => {
       return {
         func: require(x),
         path: x,
-        alias:  path.parse(x).name,
+        alias: path.parse(x).name,
       };
     });
     context.tasks.metrics = this._getTasks('metrics', config.tasks).map((x) => {
       return {
         func: require(x),
         path: x,
-        alias:  path.parse(x).name,
+        alias: path.parse(x).name,
       };
     });
     return context;

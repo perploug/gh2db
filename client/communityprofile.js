@@ -23,16 +23,6 @@ module.exports = class CommunityProfile extends Base {
       pull_request_template: Sequelize.BOOLEAN,
       readme: Sequelize.BOOLEAN,
       license: Sequelize.STRING,
-      contributing_file: Sequelize.BOOLEAN,
-      security_file: Sequelize.BOOLEAN,
-      codeowners_file: Sequelize.BOOLEAN,
-      maintainers_file: Sequelize.BOOLEAN,
-
-      zappr_file: Sequelize.BOOLEAN,
-      zappr_status_check: Sequelize.BOOLEAN,
-      zappr_webhook_active: Sequelize.BOOLEAN,
-      zappr_team: Sequelize.STRING,
-      zappr_type: Sequelize.STRING,
 
       required_reviewers: Sequelize.BOOLEAN,
       require_codeowners: Sequelize.BOOLEAN,
@@ -95,25 +85,6 @@ module.exports = class CommunityProfile extends Base {
           return protection ? true : false;
         },
       },
-
-      'branchProtection.required_status_checks': {
-        key: 'zappr_status_check',
-        transform: (checks) => {
-          if (!checks || !checks.contexts) return false;
-
-          return checks.contexts.indexOf('zappr') >= 0;
-        },
-      },
-
-      'files.security': 'security_file',
-      'files.contributing': 'contributing_file',
-      'files.codeowners': 'codeowners_file',
-      'files.maintainers': 'maintainers_file',
-
-      'zappr.active': 'zappr_webhook_active',
-      'zappr.fill': 'zappr_file',
-      'zappr.type': 'zappr_type',
-      'zappr.team': 'zappr_team',
     };
 
     this.name = 'CommunityProfile';
@@ -152,14 +123,7 @@ module.exports = class CommunityProfile extends Base {
     }
   }
 
-  async getAll(orgName, repoName, config) {
-    var zappr = {
-      found: false,
-      file: false,
-    };
-
-    var files = {};
-
+  async getAll(orgName, repoName, branch, config) {
     try {
       var community = await this.ghClient.getCommunityProfile(
         orgName,
@@ -169,34 +133,26 @@ module.exports = class CommunityProfile extends Base {
       var branchProtection = await this.ghClient.getBranchProtection(
         orgName,
         repoName,
-        'master'
+        branch
       );
 
+      /*
       files.contributing = await this.urlExists(
         filesBaseUrl + 'CONTRUBUTING.md'
       );
-      if (!files.contributing) {
-        files.contributing = await this.urlExists(
-          filesBaseUrl + 'CONTRUBUTING.rst'
-        );
-      }
 
       files.security = await this.urlExists(filesBaseUrl + 'SECURITY.md');
-      if (!files.security) {
-        files.security = await this.urlExists(filesBaseUrl + 'SECURITY.rst');
-      }
 
       files.codeowners = await this.urlExists(
         filesBaseUrl + '.github/CODEOWNERS'
       );
 
       files.maintainers = await this.urlExists(filesBaseUrl + 'MAINTAINERS');
+        */
 
       return {
         community,
         branchProtection,
-        files,
-        zappr,
       };
     } catch (ex) {
       return {};

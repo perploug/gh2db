@@ -72,6 +72,10 @@ module.exports = class GithubClient {
         return `${this.url}/repos/${org}/${repo}/releases`;
       },
 
+      readmeForRepo: (org, repo) => {
+        return `${this.url}/repos/${org}/${repo}/readme`;
+      },
+
       memberEvents: (member) => {
         return `${this.url}/users/${member}/events/public`;
       },
@@ -140,6 +144,14 @@ module.exports = class GithubClient {
   async getRepo(org, repo) {
     const response = await this.requestorTemplate.get(
       this.api.repository(org, repo)
+    );
+
+    return response.body;
+  }
+
+  async getReadme(org, repo) {
+    const response = await this.requestorTemplate.get(
+      this.api.readmeForRepo(org, repo)
     );
 
     return response.body;
@@ -403,10 +415,7 @@ module.exports = class GithubClient {
     if (log) {
       result.log = log;
     } else {
-
       result.log = (level, message, data) => {
-
-       
         if (data && data.statusCode === 204) {
           console.error(
             `\n\n  ⚠️   Github Error: ${data.statusCode} \n 

@@ -1,6 +1,4 @@
-module.exports = async function(repo, context, config) {
-  
-
+module.exports = async function (repo, context, config) {
   await context.client.Collaborator.destroy(repo.id);
 
   var collaborators = await context.client.Collaborator.getAll(
@@ -8,10 +6,9 @@ module.exports = async function(repo, context, config) {
     repo.name
   );
 
-  await context.client.Collaborator.bulkCreate(
-    collaborators,
-    context.externalValuesMap
-  );
+  await context.client.Collaborator.bulkCreate(collaborators, {
+    repository_id: repo.id,
+  });
 
   return true;
 };

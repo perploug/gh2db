@@ -9,15 +9,18 @@ module.exports = class Commit extends Base {
     this.schema = {
       id: {
         type: Sequelize.BIGINT,
-        primaryKey: true
+        primaryKey: true,
+        autoIncrement: true,
       },
       author: Sequelize.BIGINT,
       author_date: Sequelize.DATE,
       committer: Sequelize.BIGINT,
+      committer_login: Sequelize.STRING(100),
+      committer_avatar: Sequelize.STRING(200),
       committer_date: Sequelize.DATE,
       url: Sequelize.STRING,
-      message: Sequelize.STRING,
-      comment_count: Sequelize.INTEGER
+      message: Sequelize.TEXT,
+      comment_count: Sequelize.INTEGER,
     };
 
     this.map = {
@@ -26,9 +29,11 @@ module.exports = class Commit extends Base {
       'author.id': 'author',
       'commit.author.date': 'author_date',
       'committer.id': 'committer',
+      'committer.login': 'committer_login',
+      'committer.avatar': 'committer_avatar',
       'commit.committer.date': 'committer_date',
       html_url: 'url',
-      'commit.comment_count': 'comment_count'
+      'commit.comment_count': 'comment_count',
     };
 
     this.name = 'Commit';

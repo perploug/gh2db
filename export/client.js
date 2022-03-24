@@ -20,6 +20,8 @@ function saveToFile(data, folder, filename) {
       JSON.stringify(data, null, 2),
       'utf8'
     );
+
+    console.log(` ✓ Export to ${filename} done`);
   } catch (ex) {
     console.log(ex);
   }
@@ -42,6 +44,25 @@ module.exports = class ExportClient {
     });
 
     saveToFile(repos, this.config.storage, 'repositories');
+
+    // export repos + metrics
+    const query = `SELECT "Repository".*,
+    (select count(1) from "Issue" where "Issue".repository_id = "Repository".id) as issue_total,
+    (select count(1) from "Issue" where "Issue".repository_id = "Repository".id and "Issue".state = 'open') as issue_open,
+    (select count(1) from "Issue" where "Issue".repository_id = "Repository".id and "Issue".state = 'open' and date_part('day', (now() - "Issue".updated_at)) > 90 ) as issue_stale,
+    (select count(1) from "PullRequest"  where "PullRequest".repository_id = "Repository".id) as pr_total,
+    (select count(1) from "PullRequest" where "PullRequest".repository_id = "Repository".id and "PullRequest".state = 'open') as pr_open,
+    (select count(1) from "PullRequest" where "PullRequest".repository_id = "Repository".id and "PullRequest".state = 'open' and date_part('day', (now() - "PullRequest".updated_at)) > 60 ) as pr_stale,
+    (select count(1) from "Vulnerability"  where "Vulnerability".repository_id = "Repository".id) as vuln_total,
+    (select count(1) from "Commit"  where "Commit".repository_id = "Repository".id) as commit_total,
+    (select count(1) from "Commit"  where "Commit".repository_id = "Repository".id and date_part('day', (now() - "Commit".author_date)) < 90) as commit_recent,
+    (select count(1) from "Commit" inner join "Member" on "Member".id = "Commit".author where "Commit".repository_id = "Repository".id) as commit_employee_total,
+    (select count( DISTINCT author) from "Commit" inner join "Member" on "Member".id = "Commit".author where "Commit".repository_id = "Repository".id) as committer_internal,
+    (select count( DISTINCT author) from "Commit" left join "Member" on "Member".id = "Commit".author where "Commit".repository_id = "Repository".id and "Member".login is null) as committer_external
+    FROM "Repository" `;
+
+    const repo_metrics = await this.database.query(query, { type: this.database.QueryTypes.SELECT });
+    saveToFile(repo_metrics, this.config.storage, 'metrics');
 
     // organisation stats
     var orgs = await this.database.models.Organisation.findAll();

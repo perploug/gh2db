@@ -1,4 +1,4 @@
-module.exports = async function(repo, context, config) {
+module.exports = async function (repo, context, config) {
   await context.client.Contribution.destroy(repo.id);
 
   var contributions = await context.client.Contribution.getAll(
@@ -6,10 +6,9 @@ module.exports = async function(repo, context, config) {
     repo.name
   );
 
-  await context.client.Contribution.bulkCreate(
-    contributions,
-    context.externalValuesMap
-  );
+  await context.client.Contribution.bulkCreate(contributions, {
+    repository_id: repo.id,
+  });
 
   return true;
 };

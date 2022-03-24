@@ -4,14 +4,15 @@ const Bootstrap = require('./app/bootstrap.js');
 var app;
 
 Object.defineProperty(Array.prototype, 'chunk', {
-  value: function(chunkSize) {
+  value: function (chunkSize) {
     var array = this;
-    return [].concat.apply([],
-      array.map(function(elem, i) {
+    return [].concat.apply(
+      [],
+      array.map(function (elem, i) {
         return i % chunkSize ? [] : [array.slice(i, i + chunkSize)];
       })
     );
-  }
+  },
 });
 
 async function init() {
@@ -77,30 +78,39 @@ async function run(config, context) {
       console.log(
         `Running ${context.tasks.repo.length} repository tasks on ${repositories.length} imported github repositories`
       );
-      
-      const chunkedRepos = repositories.chunk(10);
+
+      const chunkedRepos = repositories.chunk(5);
 
       for (const repoTaskFunc of context.tasks.repo) {
         var task_queue = [];
-        
-        process.stdout.write(` ⧖ task:${repoTaskFunc.alias}`);
-        
-        for(const repoChunk of chunkedRepos){
+        var done = 0;
+        var repos_count = 0;
 
+        process.stdout.write(` ⧖ task:${repoTaskFunc.alias}: 0% done`);
+
+        for (const repoChunk of chunkedRepos) {
           for (const repository of repoChunk) {
             context.externalValuesMap = { repository_id: repository.id };
-  
+
             // dumb exception
             if (repoTaskFunc.alias === 'dependents') {
               await repoTaskFunc.func(repository, context, config);
             } else {
+              repos_count++;
               task_queue.push(repoTaskFunc.func(repository, context, config));
             }
           }
-  
-          await Promise.all(task_queue);
-          process.stdout.write(".");
 
+          await Promise.allSettled(task_queue);
+          done++;
+
+          process.stdout.clearLine(0);
+          process.stdout.cursorTo(0);
+          process.stdout.write(
+            ` ⧖ task:${repoTaskFunc.alias}: ${Math.round(
+              (done / chunkedRepos.length) * 100
+            )}% done (${repos_count})`
+          );
         }
 
         process.stdout.clearLine(0);
@@ -120,6 +130,7 @@ async function run(config, context) {
     console.log(`Running ${context.tasks.post.length} post-processing tasks`);
     for (const task of context.tasks.post) {
       await task.func(context, config);
+      console.log(` ✓ task:${task.alias} complete `);
     }
   }
 

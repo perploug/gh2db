@@ -59,8 +59,6 @@ module.exports = class Dependents extends Base {
     var complete = packages.concat(repositories);
     var members = new Set(complete.map((x) => x.org));
 
-    console.log('    - ' + repoName + ' dependents: ' + complete.length);
-
     for (const member of members) {
       try {
         var user = await this.ghClient.getUser(member);

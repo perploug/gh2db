@@ -1,6 +1,7 @@
 const Base = require('./base.js');
 const Sequelize = require('sequelize');
 const mapper = require('object-mapper');
+const helper = require('./helper.js');
 
 module.exports = class Member extends Base {
   constructor(githubClient, databaseClient) {
@@ -69,7 +70,10 @@ module.exports = class Member extends Base {
     const dbMember = mapper(member, this.map);
 
     await this.model
-      .findOrCreate({ where: dbMember })
+      .findOrCreate({
+        where: { id: dbMember.id },
+        defaults: dbMember,
+      })
       .spread((createdMember) => {
         return organisation.addMember(createdMember);
       });

@@ -9,7 +9,7 @@ module.exports = class PullRequest extends Base {
     this.schema = {
       id: {
         type: Sequelize.BIGINT,
-        primaryKey: true
+        primaryKey: true,
       },
       closed_at: Sequelize.DATE,
       created_at: Sequelize.DATE,
@@ -21,7 +21,9 @@ module.exports = class PullRequest extends Base {
       pull_request_repository_id: Sequelize.BIGINT,
       author_association: Sequelize.STRING,
       assignee_id: Sequelize.BIGINT,
-      user_id: Sequelize.BIGINT
+      user_id: Sequelize.BIGINT,
+      user_login: Sequelize.STRING(100),
+      user_avatar: Sequelize.STRING(200),
     };
 
     this.map = {
@@ -36,8 +38,10 @@ module.exports = class PullRequest extends Base {
       author_association: 'author_association',
       'assignee.id': 'assignee_id',
       'user.id': 'user_id',
+      'user.login': 'user_login',
+      'user.avatar': 'user_avatar',
       'base.repo.id': 'repository_id',
-      'head.repo.id': 'pull_request_repository_id'
+      'head.repo.id': 'pull_request_repository_id',
     };
 
     this.name = 'PullRequest';

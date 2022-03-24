@@ -35,6 +35,11 @@ module.exports = class Repository extends Base {
       disabled: Sequelize.BOOLEAN,
       private: Sequelize.BOOLEAN,
       visibility: Sequelize.STRING,
+      default_branch: Sequelize.STRING,
+      readme: Sequelize.TEXT,
+
+      // this is purely used by extensions that which to store an internal org ID to set ownership
+      owner_id: Sequelize.STRING(400),
     };
 
     this.map = {
@@ -57,6 +62,9 @@ module.exports = class Repository extends Base {
       disabled: 'disabled',
       private: 'private',
       visibility: 'visibility',
+      default_branch: 'default_branch',
+      readme: 'readme',
+      owner_id: 'owner_id',
     };
 
     this.name = 'Repository';
@@ -78,7 +86,7 @@ module.exports = class Repository extends Base {
 
   async getAll(orgName) {
     const repos = await this.ghClient.getRepos(orgName);
-    const filtered = repos.filter((x) => !x.fork);
+    const filtered = repos.filter((x) => !x.fork && x.name !== 'linux');
     return filtered;
   }
 

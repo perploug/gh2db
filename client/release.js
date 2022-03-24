@@ -10,8 +10,8 @@ module.exports = class Release extends Base {
         type: Sequelize.BIGINT,
         primaryKey: true
       },
-      name: Sequelize.STRING,
-      body: Sequelize.STRING,
+      name: Sequelize.STRING(300),
+      body: Sequelize.TEXT,
       tag_name: Sequelize.STRING,
       url: Sequelize.STRING,
       created_at: Sequelize.DATE,
