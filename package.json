@@ -30,6 +30,7 @@
     "ghrequestor": "^0.1.7",
     "git-guilt": "^0.1.1",
     "js-yaml": "^3.13.1",
+    "license-lookup": "^0.0.20",
     "node-fetch": "^2.6.7",
     "object-mapper": "^5.0.0",
     "pg": "^8.7.3",
