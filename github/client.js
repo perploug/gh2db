@@ -88,6 +88,10 @@ module.exports = class GithubClient {
         return `${this.url}/repos/${org}/${repo}/contents/${path}`;
       },
 
+      listFiles: (org, repo, path) => {
+        return `${this.url}/repos/${org}/${repo}/contents/${path}`;
+      },
+
       user: (user) => {
         return `${this.url}/users/${user}`;
       },
@@ -166,6 +170,14 @@ module.exports = class GithubClient {
   async getFileContents(org, repo, path) {
     const response = await this.requestorTemplate.get(
       this.api.fileContents(org, repo, path)
+    );
+
+    return response.body;
+  }
+
+  async getFileList(org, repo, path = '/') {
+    const response = await this.requestorTemplate.get(
+      this.api.listFiles(org, repo, path)
     );
 
     return response.body;
