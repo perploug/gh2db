@@ -130,13 +130,14 @@ module.exports = class CommunityProfile extends Base {
         repoName
       );
 
+      /*
       var branchProtection = await this.ghClient.getBranchProtection(
         orgName,
         repoName,
         branch
       );
 
-      /*
+      
       files.contributing = await this.urlExists(
         filesBaseUrl + 'CONTRUBUTING.md'
       );
@@ -152,7 +153,6 @@ module.exports = class CommunityProfile extends Base {
 
       return {
         community,
-        branchProtection,
       };
     } catch (ex) {
       return {};
