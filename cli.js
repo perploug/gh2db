@@ -90,14 +90,21 @@ async function run(config, context) {
 
         for (const repoChunk of chunkedRepos) {
           for (const repository of repoChunk) {
-            context.externalValuesMap = { repository_id: repository.id };
+            if (
+              !repository.fork &&
+              repository.name !== 'linux' &&
+              !repository.private
+            ) {
+              context.externalValuesMap = { repository_id: repository.id };
 
-            // dumb exception
-            if (repoTaskFunc.alias === 'dependents') {
-              await repoTaskFunc.func(repository, context, config);
-            } else {
+              // dumb exception
+              if (repoTaskFunc.alias === 'dependents') {
+                await repoTaskFunc.func(repository, context, config);
+              } else {
+                task_queue.push(repoTaskFunc.func(repository, context, config));
+              }
+
               repos_count++;
-              task_queue.push(repoTaskFunc.func(repository, context, config));
             }
           }
 
