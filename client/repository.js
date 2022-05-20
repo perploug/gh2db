@@ -86,8 +86,7 @@ module.exports = class Repository extends Base {
 
   async getAll(orgName) {
     const repos = await this.ghClient.getRepos(orgName);
-    const filtered = repos.filter((x) => !x.fork && x.name !== 'linux');
-    return filtered;
+    return repos;
   }
 
   async getRepo(orgName, repo) {
