@@ -69,14 +69,10 @@ module.exports = class Member extends Base {
   async saveOrUpdate(member, organisation) {
     const dbMember = mapper(member, this.map);
 
-    await this.model
-      .findOrCreate({
-        where: { id: dbMember.id },
-        defaults: dbMember,
-      })
-      .spread((createdMember) => {
-        return organisation.addMember(createdMember);
-      });
+    const [instance, created] = await this.model.upsert(dbMember);
+    if (created) {
+      organisation.addMember(instance);
+    }
   }
 
   async bulkCreate(members, organisation) {

@@ -1,7 +1,6 @@
 const fs = require('fs');
 var path = require('path');
 const { performance } = require('perf_hooks');
-
 const dottie = require('dottie');
 
 const GithubClient = require('../github/client.js');

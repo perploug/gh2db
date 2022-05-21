@@ -36,11 +36,11 @@
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
     "request-promise": "^4.2.2",
-    "sequelize": "^4.41.0",
-    "simple-git": "^1.107.0",
-    "sqlite3": "^4.0.3"
+    "sequelize": "^6.19.2",
+    "simple-git": "^3.7.1",
+    "sqlite3": "^5.0.8"
   },
   "devDependencies": {
-    "eslint": "^4.19.1"
+    "eslint": "^8.15.0"
   }
 }

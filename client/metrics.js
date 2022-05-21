@@ -19,7 +19,7 @@ module.exports = class Metrics extends Base {
       timestamp: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('NOW()'),
+        defaultValue: Sequelize.NOW,
       },
 
       // basics - for historic changes in stars/watchers

@@ -13,7 +13,6 @@ const Topic = require('./topic.js');
 const Release = require('./release.js');
 const Calendar = require('./calendar.js');
 const Vulnerability = require('./vulnerability.js');
-const Blame = require('./blame.js');
 const Metrics = require('./metrics.js');
 
 const Base = require('./base.js');
@@ -76,9 +75,6 @@ module.exports = async function (
   s.Vulnerability = new Vulnerability(github, database);
   s.Vulnerability.define();
 
-  s.Blame = new Blame(github, database);
-  s.Blame.define();
-
   s.Metrics = new Metrics(github, database);
   s.Metrics.define();
 
@@ -109,8 +105,7 @@ module.exports = async function (
   s.Topic.sync(reset);
   s.Release.sync(reset);
   s.Vulnerability.sync(reset);
-  s.Blame.sync(reset);
-  s.Metrics.sync(true);
+  s.Metrics.sync(reset);
 
   for (const client of externalTypes) {
     try {
