@@ -6,9 +6,6 @@ module.exports = async function (org, context, config) {
   // Get all repositories in the org and save them
   var githubRepositories = await context.client.Repository.getAll(org.login);
 
-  // testing new deps
-  githubRepositories = githubRepositories.slice(0, 2);
-
   // for each member, call the users api to further enrich the data.
   for (let index = 0; index < githubRepositories.length; index++) {
     const repo = githubRepositories[index];
