@@ -124,10 +124,10 @@ module.exports = class Bootstrap {
   }
 
   async validateScopes(context) {
-    var scopes = await context.github.getScopes();
+    var scopes = (await context.github.getScopes()).map((x) => x.trim());
     var scopesValid = true;
 
-    if (!(scopes.indexOf('repo') < 0)) {
+    if (scopes.indexOf('repo') < 0) {
       console.error(`  ⚠️  OAuth token does not have repo scope access`);
       scopesValid = false;
     }
@@ -137,7 +137,7 @@ module.exports = class Bootstrap {
       scopesValid = false;
     }
 
-    if (!(scopes.indexOf('read:user') < 0)) {
+    if (scopes.indexOf('read:user') < 0 && scopes.indexOf('user') < 0) {
       console.error(`  ⚠️  OAuth token does not have read:user scope access`);
       scopesValid = false;
     }

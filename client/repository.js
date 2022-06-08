@@ -65,6 +65,7 @@ module.exports = class Repository extends Base {
       default_branch: 'default_branch',
       readme: 'readme',
       owner_id: 'owner_id',
+      organisation_id: 'organisation_id',
     };
 
     this.name = 'Repository';
@@ -77,6 +78,11 @@ module.exports = class Repository extends Base {
 
     this.model.belongsToMany(this.dbClient.models.Topic, {
       through: 'RepositoryTopic',
+    });
+
+    this.model.belongsToMany(this.dbClient.models.Dependency, {
+      through: 'RepositoryDependency',
+      foreignKey: 'repository_id',
     });
 
     this.model.belongsTo(this.dbClient.models.Organisation);

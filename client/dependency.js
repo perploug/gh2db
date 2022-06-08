@@ -1,10 +1,11 @@
 const Base = require('./base.js');
 const Sequelize = require('sequelize');
 const helper = require('./helper.js');
-const LicenseLookup = require('license-lookup');
+const { LicenseLookup } = require('license-lookup');
 const fetch = require('node-fetch');
+const mapper = require('object-mapper');
 
-module.exports = class Dependencies extends Base {
+module.exports = class Dependency extends Base {
   constructor(githubClient, databaseClient) {
     super(githubClient, databaseClient);
 
@@ -14,45 +15,35 @@ module.exports = class Dependencies extends Base {
         primaryKey: true,
         autoIncrement: true,
       },
-      org: Sequelize.STRING(100),
-      repo: Sequelize.STRING(100),
-
+      key: Sequelize.STRING(300),
       name: Sequelize.STRING(300),
       type: Sequelize.STRING(20),
-
-      license: Sequelize.STRING(30),
-
-      popularity: Sequelize.INTEGER,
-      contributors: Sequelize.INTEGER,
-      security: Sequelize.INTEGER,
     };
 
     this.map = {
+      key: 'key',
       type: 'type',
       name: 'name',
-      repository_id: 'repository_id',
     };
 
-    this.name = 'Dependencies';
+    this.name = 'Dependency';
   }
 
   sync(force) {
     this.model.belongsToMany(this.dbClient.models.Repository, {
       through: 'RepositoryDependency',
+      foreignKey: 'dep_id',
     });
 
-    super.sync(force);
+    super.sync(true);
   }
 
   async getAll() {
     // key / dep
     const deps = {};
 
-    // dep / repositores
-    const dep = { name, type, reposositories: [] };
-
     // fetch files from each repo
-    var repositories = await this.dbClient.models.Repository.model.findAll({
+    var repositories = await this.dbClient.models.Repository.findAll({
       where: {
         fork: false,
         private: false,
@@ -61,9 +52,7 @@ module.exports = class Dependencies extends Base {
     });
 
     var ll = new LicenseLookup();
-    var detected_all = [];
-    var processed_all = [];
-    var lookedUp = {};
+    const found = {};
 
     // first we process all manifests to get all dependency keys
     for (const repo of repositories) {
@@ -77,9 +66,9 @@ module.exports = class Dependencies extends Base {
         files = files.filter((x) => x.type === 'file').map((x) => x.path);
 
         // compare root files with the matchers
-        var matchedFiles = ll.matchFilestoManager(files);
+        var matchedFiles = ll.matchFilesToManager(files);
 
-        for (const match in matchedFiles) {
+        for (const match of Object.values(matchedFiles)) {
           // for each matched manifest, fetch the manifest and feed it to the lookup to extract
           // depenedency names
           var file = await fetch(
@@ -94,21 +83,21 @@ module.exports = class Dependencies extends Base {
             // this is a local operation, and should not take long to do per repo...
             var detectedDependencies = await match.manager.detect(manifest);
 
-            /*
-            for (const detected of detectedDependencies) {
-              // for each dependency, we need to query the manager for more information,
-              // we need to consult the local cache first
+            for (const dep of detectedDependencies) {
+              const key = match.manager.name + '.' + dep.name;
 
-              detected_app.push({
-                ...detected,
-                manager: match.manager,
-                repo: {
-                  org: repo.dataValues.owner,
-                  name: repo.dataValues.name,
-                  repo_id: repo.dataValues.id,
-                },
-              });
-            }*/
+              if (!found[key]) {
+                const rs = [];
+                rs.push(repo.id);
+
+                found[key] = {
+                  name: dep.name,
+                  type: match.manager.name,
+                  key: key,
+                  repos: rs,
+                };
+              } else found[key].repos.push(repo.id);
+            }
           }
         }
       } catch (ex) {
@@ -118,6 +107,30 @@ module.exports = class Dependencies extends Base {
 
     // add to one long dictionary so we only look up things once.. (check the lib to see if it already caches.)
 
-    return complete;
+    return Object.values(found);
+  }
+
+  async saveOrUpdate(dependency, repos) {
+    const dbDependency = mapper(dependency, this.map);
+    const instance = await this.model.create(dbDependency);
+
+    for (const repo of repos) {
+      if (repo > 0) {
+        try {
+          instance.addRepository(repo);
+          //   this.model.addRepository(instance.id, repo);
+        } catch (ex) {
+          console.log(
+            'Could not associate: dep:' + instance.id + ' and repo: ' + repo
+          );
+        }
+      }
+    }
+  }
+
+  async bulkCreate(dependencies) {
+    for (const dep of dependencies) {
+      await this.saveOrUpdate(dep, [...new Set(dep.repos)]);
+    }
   }
 };

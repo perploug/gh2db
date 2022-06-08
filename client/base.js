@@ -9,7 +9,7 @@ module.exports = class Base {
     this.dbConfig = {
       underscored: true,
       timestamps: false,
-      freezeTableName: true
+      freezeTableName: true,
     };
   }
 
@@ -26,7 +26,11 @@ module.exports = class Base {
   // generic repository delete statement
   async destroy(id, where = { where: { repository_id: id } }) {
     try {
-      return await this.model.destroy(where);
+      if (!id) {
+        return await this.model.destroy({ truncate: true });
+      } else {
+        return await this.model.destroy(where);
+      }
     } catch (ex) {
       console.log(this.name + ' truncating failed: ' + ex);
     }
@@ -55,6 +59,6 @@ module.exports = class Base {
   }
 
   getModel() {
-    return this.mapper;
+    return this.model;
   }
 };

@@ -185,7 +185,9 @@ module.exports = class GithubClient {
 
   async getScopes() {
     const response = await this.requestorTemplate.get(this.api.rateLimit());
-    return response.headers['x-oauth-scopes'].replace(' ', '').split(',');
+    if (response.headers['x-oauth-scopes'])
+      return response.headers['x-oauth-scopes'].replace(' ', '').split(',');
+    else return [];
   }
 
   async getVulnerabilityAlerts(org) {
