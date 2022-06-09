@@ -71,7 +71,7 @@ module.exports = class Repository extends Base {
     this.name = 'Repository';
   }
 
-  sync(force) {
+  async sync(force) {
     //this.model.belongsTo(this.dbClient.models.Organisation);
     this.model.hasMany(this.dbClient.models.Release);
     this.model.hasMany(this.dbClient.models.Contribution);
@@ -95,7 +95,7 @@ module.exports = class Repository extends Base {
       foreignKey: 'repository_id',
     });
 
-    super.sync(force);
+    await super.sync(force);
   }
 
   async getAll(orgName) {

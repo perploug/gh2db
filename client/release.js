@@ -31,11 +31,11 @@ module.exports = class Release extends Base {
     this.name = 'Release';
   }
 
-  sync(force) {
+  async sync(force) {
     this.model.belongsTo(this.dbClient.models.Repository, {
       foreignKey: 'repository_id',
     });
-    super.sync(force);
+    await super.sync(force);
   }
 
   async getAll(orgName, repoName) {

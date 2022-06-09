@@ -22,11 +22,11 @@ module.exports = class Contribution extends Base {
     this.name = 'Contribution';
   }
 
-  sync(force) {
+  async sync(force) {
     this.model.belongsTo(this.dbClient.models.Repository, {
       foreignKey: 'repository_id',
     });
-    super.sync(force);
+    await super.sync(force);
   }
 
   async getAll(orgName, repoName) {

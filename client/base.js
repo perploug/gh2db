@@ -20,8 +20,8 @@ module.exports = class Base {
   }
 
   // syncs the schema and any of the intertable relations
-  sync(force) {
-    this.model.sync({ force: force });
+  async sync(force) {
+    await this.model.sync({ force: force });
   }
 
   // generic repository delete statement

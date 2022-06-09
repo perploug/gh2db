@@ -43,14 +43,14 @@ module.exports = class Organisation extends Base {
     this.name = 'Organisation';
   }
 
-  sync(force) {
+  async sync(force) {
     this.model.belongsToMany(this.dbClient.models.Member, {
       through: 'MemberOrganisation',
       foreignKey: 'organisation_id',
     });
 
     this.model.hasMany(this.dbClient.models.Repository, { as: 'Repositories' });
-    super.sync(force);
+    await super.sync(force);
   }
 
   async getAll() {

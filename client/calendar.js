@@ -10,16 +10,16 @@ module.exports = class Calendar extends Base {
       id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
-      date: Sequelize.DATE
+      date: Sequelize.DATE,
     };
 
     this.name = 'Calendar';
   }
 
-  sync(force) {
-    super.sync(force);
+  async sync(force) {
+    await super.sync(force);
   }
 
   async getAll(year = 2014) {

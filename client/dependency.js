@@ -29,13 +29,13 @@ module.exports = class Dependency extends Base {
     this.name = 'Dependency';
   }
 
-  sync(force) {
+  async sync(force) {
     this.model.belongsToMany(this.dbClient.models.Repository, {
       through: 'RepositoryDependency',
       foreignKey: 'dep_id',
     });
 
-    super.sync(true);
+    await super.sync(true);
   }
 
   async getAll() {

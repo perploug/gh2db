@@ -11,13 +11,13 @@ module.exports = class Topic extends Base {
     this.name = 'Topic';
   }
 
-  sync(force) {
+  async sync(force) {
     this.model.belongsToMany(this.dbClient.models.Repository, {
       through: 'RepositoryTopic',
       foreignKey: 'topic_id',
     });
 
-    super.sync(force);
+    await super.sync(force);
   }
 
   async destroy(id, where = { where: { repository_id: id } }) {

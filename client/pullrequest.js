@@ -47,11 +47,11 @@ module.exports = class PullRequest extends Base {
     this.name = 'PullRequest';
   }
 
-  sync(force) {
+  async sync(force) {
     this.model.belongsTo(this.dbClient.models.Repository, {
       foreignKey: 'repository_id',
     });
-    super.sync(force);
+    await super.sync(force);
   }
 
   async getAll(orgName, repoName) {

@@ -44,11 +44,11 @@ module.exports = class Dependents extends Base {
     this.name = 'Dependents';
   }
 
-  sync(force) {
+  async sync(force) {
     this.model.belongsTo(this.dbClient.models.Repository, {
       foreignKey: 'repository_id',
     });
-    super.sync(force);
+    await super.sync(force);
   }
 
   async getAll(orgName, repoName, repoId) {

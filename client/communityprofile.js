@@ -90,11 +90,11 @@ module.exports = class CommunityProfile extends Base {
     this.name = 'CommunityProfile';
   }
 
-  sync(force) {
+  async sync(force) {
     this.model.belongsTo(this.dbClient.models.Repository, {
       foreignKey: 'repository_id',
     });
-    super.sync(force);
+    await super.sync(force);
   }
 
   async urlExists(url) {

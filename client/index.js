@@ -93,29 +93,29 @@ module.exports = async function (
   }
 
   // finally sync the database so all schemas are in place
-  s.Calendar.sync(reset);
+  await s.Calendar.sync(reset);
+  await s.Organisation.sync(reset);
 
-  s.Repository.sync(reset);
-  s.Member.sync(reset);
-  s.Organisation.sync(reset);
-  s.Collaborator.sync(reset);
-  s.PullRequest.sync(reset);
-  s.Commit.sync(reset);
-  s.Contribution.sync(reset);
-  s.Dependents.sync(reset);
-  s.Dependency.sync(reset);
+  await s.Member.sync(reset);
+  await s.Repository.sync(reset);
+  await s.Collaborator.sync(reset);
+  await s.PullRequest.sync(reset);
+  await s.Commit.sync(reset);
+  await s.Contribution.sync(reset);
+  await s.Dependents.sync(reset);
+  await s.Dependency.sync(reset);
 
-  s.Issue.sync(reset);
-  s.CommunityProfile.sync(reset);
-  s.ExternalContribution.sync(reset);
-  s.Topic.sync(reset);
-  s.Release.sync(reset);
-  s.Vulnerability.sync(reset);
-  s.Metrics.sync(reset);
+  await s.Issue.sync(reset);
+  await s.CommunityProfile.sync(reset);
+  await s.ExternalContribution.sync(reset);
+  await s.Topic.sync(reset);
+  await s.Release.sync(reset);
+  await s.Vulnerability.sync(reset);
+  await s.Metrics.sync(reset);
 
   for (const client of externalTypes) {
     try {
-      s[client.obj.name].sync(reset);
+      await s[client.obj.name].sync(reset);
     } catch (ex) {}
   }
 
