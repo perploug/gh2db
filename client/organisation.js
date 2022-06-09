@@ -10,7 +10,7 @@ module.exports = class Organisation extends Base {
     this.schema = {
       id: {
         type: Sequelize.BIGINT,
-        primaryKey: true
+        primaryKey: true,
       },
       name: Sequelize.STRING(300),
       login: Sequelize.STRING(300),
@@ -23,8 +23,8 @@ module.exports = class Organisation extends Base {
       private_repositories: Sequelize.INTEGER,
       type: {
         type: Sequelize.STRING,
-        defaultValue: 'internal'
-      }
+        defaultValue: 'internal',
+      },
     };
 
     this.map = {
@@ -37,7 +37,7 @@ module.exports = class Organisation extends Base {
       following: 'following',
       collaborators: 'collaborators',
       total_private_repos: 'private_repositories',
-      public_repos: 'public_repositories'
+      public_repos: 'public_repositories',
     };
 
     this.name = 'Organisation';
@@ -45,7 +45,8 @@ module.exports = class Organisation extends Base {
 
   sync(force) {
     this.model.belongsToMany(this.dbClient.models.Member, {
-      through: 'MemberOrganisation'
+      through: 'MemberOrganisation',
+      foreignKey: 'organisation_id',
     });
 
     this.model.hasMany(this.dbClient.models.Repository, { as: 'Repositories' });

@@ -9,21 +9,23 @@ module.exports = class Contribution extends Base {
     this.schema = {
       user_id: Sequelize.BIGINT,
       total: Sequelize.BIGINT,
-      login: Sequelize.STRING(100)
+      login: Sequelize.STRING(100),
     };
 
     this.map = {
       id: 'user_id',
       contributions: 'total',
       login: 'login',
-      repository_id: 'repository_id'
+      repository_id: 'repository_id',
     };
 
     this.name = 'Contribution';
   }
 
   sync(force) {
-    this.model.belongsTo(this.dbClient.models.Repository);
+    this.model.belongsTo(this.dbClient.models.Repository, {
+      foreignKey: 'repository_id',
+    });
     super.sync(force);
   }
 

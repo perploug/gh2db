@@ -6,14 +6,15 @@ module.exports = class Topic extends Base {
     super(githubClient, databaseClient);
 
     this.schema = {
-      topic: Sequelize.STRING
+      topic: Sequelize.STRING,
     };
     this.name = 'Topic';
   }
 
   sync(force) {
     this.model.belongsToMany(this.dbClient.models.Repository, {
-      through: 'RepositoryTopic'
+      through: 'RepositoryTopic',
+      foreignKey: 'topic_id',
     });
 
     super.sync(force);
@@ -41,7 +42,7 @@ module.exports = class Topic extends Base {
     try {
       await this.model
         .findOrCreate({ where: { topic: topicName } })
-        .spread(createdTopic => {
+        .spread((createdTopic) => {
           return repository.addTopic(createdTopic);
         });
     } catch (ex) {

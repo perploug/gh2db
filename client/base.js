@@ -1,5 +1,6 @@
 const helper = require('./helper.js');
 const mapper = require('object-mapper');
+const { Op } = require('sequelize');
 
 module.exports = class Base {
   constructor(githubClient, databaseClient) {
@@ -20,11 +21,16 @@ module.exports = class Base {
 
   // syncs the schema and any of the intertable relations
   sync(force) {
-    this.model.sync(force);
+    this.model.sync({ force: force });
   }
 
   // generic repository delete statement
-  async destroy(id, where = { where: { repository_id: id } }) {
+  async destroy(
+    id,
+    where = {
+      where: { [Op.or]: [{ repository_id: id }, { repository_id: null }] },
+    }
+  ) {
     try {
       if (!id) {
         return await this.model.destroy({ truncate: true });
@@ -46,7 +52,14 @@ module.exports = class Base {
 
   async saveOrUpdate(value) {
     const dbValue = mapper(value, this.map);
+    dbValue.license = dbValue.repository_id;
     await this.model.upsert(dbValue);
+    return dbValue;
+  }
+
+  async create(value) {
+    const dbValue = mapper(value, this.map);
+    await this.model.create(dbValue);
     return dbValue;
   }
 

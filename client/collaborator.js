@@ -13,7 +13,7 @@ module.exports = class Collaborator extends Base {
       url: Sequelize.STRING,
       pull: Sequelize.BOOLEAN,
       push: Sequelize.BOOLEAN,
-      admin: Sequelize.BOOLEAN
+      admin: Sequelize.BOOLEAN,
     };
 
     this.map = {
@@ -23,14 +23,16 @@ module.exports = class Collaborator extends Base {
       login: 'login',
       'permissions.push': 'push',
       'permissions.pull': 'pull',
-      'permissions.admin': 'admin'
+      'permissions.admin': 'admin',
     };
 
     this.name = 'Collaborator';
   }
 
   sync(force) {
-    this.model.belongsTo(this.dbClient.models.Repository);
+    this.model.belongsTo(this.dbClient.models.Repository, {
+      foreignKey: 'repository_id',
+    });
     super.sync(force);
   }
 

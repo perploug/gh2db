@@ -75,6 +75,9 @@ module.exports = class Repository extends Base {
     //this.model.belongsTo(this.dbClient.models.Organisation);
     this.model.hasMany(this.dbClient.models.Release);
     this.model.hasMany(this.dbClient.models.Contribution);
+    this.model.hasMany(this.dbClient.models.Commit);
+    this.model.hasMany(this.dbClient.models.PullRequest);
+    this.model.hasMany(this.dbClient.models.Vulnerability);
 
     this.model.belongsToMany(this.dbClient.models.Topic, {
       through: 'RepositoryTopic',
@@ -85,7 +88,12 @@ module.exports = class Repository extends Base {
       foreignKey: 'repository_id',
     });
 
-    this.model.belongsTo(this.dbClient.models.Organisation);
+    this.model.belongsTo(this.dbClient.models.Organisation, {
+      foreignKey: 'organisation_id',
+    });
+    this.model.hasOne(this.dbClient.models.CommunityProfile, {
+      foreignKey: 'repository_id',
+    });
 
     super.sync(force);
   }

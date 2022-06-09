@@ -63,7 +63,9 @@ module.exports = class Metrics extends Base {
   }
 
   sync(force) {
-    this.model.belongsTo(this.dbClient.models.Repository);
+    this.model.belongsTo(this.dbClient.models.Repository, {
+      foreignKey: 'repository_id',
+    });
     super.sync(force);
   }
 

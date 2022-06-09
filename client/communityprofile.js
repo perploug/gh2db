@@ -35,7 +35,7 @@ module.exports = class CommunityProfile extends Base {
       'community.health_percentage': 'health_percentage',
       'community.description': 'description',
       'community.documentation': 'documentation',
-      'community.repository_id': 'repository_id',
+      repository_id: 'repository_id',
       'community.files.code_of_conduct': {
         key: 'code_of_conduct',
         transform: (file) => {
@@ -91,7 +91,9 @@ module.exports = class CommunityProfile extends Base {
   }
 
   sync(force) {
-    this.model.belongsTo(this.dbClient.models.Repository);
+    this.model.belongsTo(this.dbClient.models.Repository, {
+      foreignKey: 'repository_id',
+    });
     super.sync(force);
   }
 
@@ -151,9 +153,7 @@ module.exports = class CommunityProfile extends Base {
       files.maintainers = await this.urlExists(filesBaseUrl + 'MAINTAINERS');
         */
 
-      return {
-        community,
-      };
+      return { community };
     } catch (ex) {
       return {};
     }

@@ -51,9 +51,10 @@ module.exports = class Member extends Base {
   sync(force) {
     this.model.belongsToMany(this.dbClient.models.Organisation, {
       through: 'MemberOrganisation',
+      foreignKey: 'member_id',
     });
 
-    super.sync(force);
+    super.sync(true);
   }
 
   async getAll(orgName, logger) {
@@ -69,10 +70,8 @@ module.exports = class Member extends Base {
   async saveOrUpdate(member, organisation) {
     const dbMember = mapper(member, this.map);
 
-    const [instance, created] = await this.model.upsert(dbMember);
-    if (created) {
-      organisation.addMember(instance);
-    }
+    await this.model.upsert(dbMember);
+    await organisation.addMember(dbMember.id);
   }
 
   async bulkCreate(members, organisation) {

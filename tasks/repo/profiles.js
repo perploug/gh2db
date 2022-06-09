@@ -9,9 +9,10 @@ module.exports = async function (repo, context, config) {
     config
   );
 
-  await context.client.CommunityProfile.bulkCreate(profiles, {
-    repository_id: repo.id,
-  });
+  profiles.repository_id = repo.id;
+  // profiles.repository_id = 666;
+
+  await context.client.CommunityProfile.create(profiles);
 
   return true;
 };
