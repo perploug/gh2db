@@ -1,4 +1,4 @@
-# Roadblock
+# Gh2db
 
 A Node.js application for collecting Github statistics into a _SQLite or PostgreSQL_ database.
 
@@ -8,12 +8,12 @@ This project was built with simplicity and ease of use in mind. We simply wanted
 ## Installing and using
 Install from npm as a global command
 ```
-  > npm i @zalando/roadblock -g
+  > npm i gh2db -g
 ```
 
-Run the roadblock command in an empty folder
+Run the gh2db command in an empty folder
 ```
-  > roadblock
+  > gh2db
 ```
 
 This will generate a basic `roadblock.json` file which you can then modify:
@@ -53,9 +53,9 @@ Configuration values can also be passed from the command line to avoid storing t
 clear text:
 
 ```
-> roadblock github.token=YOURTOKEN
+> gh2db github.token=YOURTOKEN
 
-> roadblock orgs=["zalando","custom"]
+> gh2db orgs=["zalando","custom"]
 ```
 
 ### Output
@@ -101,8 +101,8 @@ Tasks to run after all org and repo data collection is completed
 ## Using the source
 ```
 > Clone this project to your local machine
-> git clone https://github.com/zalando-incubator/roadblock.git
-> cd roadblock
+> git clone https://github.com/perploug/gh2db.git
+> cd gh2db
 
 > Run npm install and start collecting data
 > npm install
