@@ -1,6 +1,6 @@
 {
-  "name": "@zalando/roadblock",
-  "version": "1.0.7",
+  "name": "gh2db",
+  "version": "1.2.0",
   "description": "node.js app to collect github data",
   "main": "index.js",
   "scripts": {
@@ -8,18 +8,18 @@
     "test": "eslint ."
   },
   "bin": {
-    "roadblock": "./cli.js"
+    "gh2db": "./cli.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zalando-incubator/roadblock.git"
+    "url": "git+https://github.com/perploug/gh2db.git"
   },
-  "author": "Zalando Open Source Team, Per Ploug",
+  "author": "Per Ploug",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/zalando-incubator/roadblock/issues"
   },
-  "homepage": "https://github.com/zalando-incubator/roadblock#readme",
+  "homepage": "https://github.com/perploug/gh2db#readme",
   "dependencies": {
     "@octokit/graphql": "^2.0.1",
     "cached-request": "^3.0.0",
