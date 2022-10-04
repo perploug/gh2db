@@ -76,6 +76,10 @@ module.exports = class GithubClient {
         return `${this.url}/repos/${org}/${repo}/readme`;
       },
 
+      pagesForRepo: (org, repo) => {
+        return `${this.url}/repos/${org}/${repo}/pages`;
+      },
+
       memberEvents: (member) => {
         return `${this.url}/users/${member}/events/public`;
       },
@@ -156,6 +160,14 @@ module.exports = class GithubClient {
   async getReadme(org, repo) {
     const response = await this.requestorTemplate.get(
       this.api.readmeForRepo(org, repo)
+    );
+
+    return response.body;
+  }
+
+  async getPages(org, repo) {
+    const response = await this.requestorTemplate.get(
+      this.api.pagesForRepo(org, repo)
     );
 
     return response.body;

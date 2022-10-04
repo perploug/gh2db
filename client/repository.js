@@ -34,6 +34,9 @@ module.exports = class Repository extends Base {
       archived: Sequelize.BOOLEAN,
       disabled: Sequelize.BOOLEAN,
       private: Sequelize.BOOLEAN,
+      pages: Sequelize.BOOLEAN,
+      pages_public: Sequelize.BOOLEAN,
+
       visibility: Sequelize.STRING,
       default_branch: Sequelize.STRING,
       readme: Sequelize.TEXT,
@@ -61,6 +64,8 @@ module.exports = class Repository extends Base {
       archived: 'archived',
       disabled: 'disabled',
       private: 'private',
+      has_pages: 'pages',
+      pages_public: 'pages_public',
       visibility: 'visibility',
       default_branch: 'default_branch',
       readme: 'readme',

@@ -14,6 +14,11 @@ module.exports = async function (org, context, config) {
     if (readme && readme.content) {
       repo.readme = Buffer.from(readme.content, 'base64').toString('utf-8');
     }
+
+    if (repo.has_pages) {
+      const pages = await context.github.getPages(repo.owner.login, repo.name);
+      repo.pages_public = pages.public;
+    }
   }
 
   console.log(
