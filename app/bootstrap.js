@@ -9,6 +9,19 @@ const Client = require('../client');
 const ExportClient = require('../export/client.js');
 
 const configs = require('./config');
+const taskTypes = ['pre', 'org', 'repo', 'post', 'metrics'];
+
+Object.defineProperty(Array.prototype, 'chunk', {
+  value: function (chunkSize) {
+    var array = this;
+    return [].concat.apply(
+      [],
+      array.map(function (elem, i) {
+        return i % chunkSize ? [] : [array.slice(i, i + chunkSize)];
+      })
+    );
+  },
+});
 
 module.exports = class Bootstrap {
   constructor(localDir = null, roadblockDir = null) {
@@ -85,6 +98,13 @@ module.exports = class Bootstrap {
     context.ui = {};
     context.tasks = {};
 
+    for (const type of taskTypes) {
+      context.tasks[type] = this._getTasks(type, config.tasks).map(
+        this.loadTask
+      );
+    }
+
+    /*
     context.tasks.pre = this._getTasks('pre', config.tasks).map((x) => {
       return {
         func: require(x),
@@ -120,6 +140,8 @@ module.exports = class Bootstrap {
         alias: path.parse(x).name,
       };
     });
+    */
+
     return context;
   }
 
@@ -144,6 +166,113 @@ module.exports = class Bootstrap {
 
     if (!scopesValid) {
       throw 'Github auth token does not have the correct access scopes configured';
+    }
+  }
+
+  async runTasks(name, tasks, context, config) {
+    if (tasks.length > 0) {
+      console.log('');
+      console.log(`Running ${tasks.length} ${name} tasks`);
+
+      for (const task of tasks) {
+        await task.func(context, config);
+        console.log(` ✓ task:${task.alias} complete `);
+      }
+    }
+  }
+
+  listLoadedTasks(context) {
+    console.log('');
+    console.log(`Tasks loaded:`);
+    for (const type of taskTypes) {
+      console.log('  - ' + type + ': ' + context.tasks[type].length + ' tasks');
+    }
+  }
+
+  async runOrganisationTasks(tasks, context, config) {
+    if (tasks.length > 0) {
+      // fetch all stored organisations to trigger tasks against...
+      const orgs = await context.client.Organisation.model.findAll();
+
+      console.log('');
+      console.log(
+        `Running ${tasks.length} organisation tasks on ${orgs.length} imported github organisations`
+      );
+
+      for (const org of orgs) {
+        for (const orgTaskFunc of context.tasks.org) {
+          var result = await orgTaskFunc.func(org, context, config);
+          console.log(` ✓ task:${orgTaskFunc.alias} complete `);
+        }
+      }
+    }
+  }
+
+  async runRepositoryTasks(tasks, context, config) {
+    if (tasks.length > 0) {
+      // Collect all stored repositories to run tasks against
+      const repositories = await context.client.Repository.model.findAll({
+        where: {
+          fork: false,
+        },
+      });
+
+      if (repositories.length > 0) {
+        console.log('');
+        console.log(
+          `Running ${tasks.length} repository tasks on ${repositories.length} imported github repositories`
+        );
+
+        const chunkedRepos = repositories.chunk(5);
+        for (const repoTaskFunc of tasks) {
+          var task_queue = [];
+          var done = 0;
+          var repos_count = 0;
+
+          process.stdout.write(` ⧖ task:${repoTaskFunc.alias}: 0% done`);
+
+          for (const repoChunk of chunkedRepos) {
+            for (const repository of repoChunk) {
+              if (
+                !repository.fork &&
+                repository.name !== 'linux' &&
+                !repository.private
+              ) {
+                context.externalValuesMap = { repository_id: repository.id };
+
+                // dumb exception
+                if (repoTaskFunc.alias === 'dependents') {
+                  await repoTaskFunc.func(repository, context, config);
+                } else {
+                  task_queue.push(
+                    repoTaskFunc.func(repository, context, config)
+                  );
+                }
+
+                repos_count++;
+              }
+            }
+
+            await Promise.allSettled(task_queue);
+            done++;
+
+            process.stdout.clearLine(0);
+            process.stdout.cursorTo(0);
+            process.stdout.write(
+              ` ⧖ task:${repoTaskFunc.alias}: ${Math.round(
+                (done / chunkedRepos.length) * 100
+              )}% done (${repos_count})`
+            );
+          }
+
+          process.stdout.clearLine(0);
+          process.stdout.cursorTo(0);
+          process.stdout.write(` ✓ task:${repoTaskFunc.alias} complete \n`);
+        }
+      } else {
+        console.log('');
+        console.log(' x  No repositories downloaded');
+      }
     }
   }
 
@@ -178,6 +307,14 @@ module.exports = class Bootstrap {
     }
 
     return tasks;
+  }
+
+  loadTask(taskpath) {
+    return {
+      func: require(taskpath),
+      path: taskpath,
+      alias: path.parse(taskpath).name,
+    };
   }
 
   _getClients() {
