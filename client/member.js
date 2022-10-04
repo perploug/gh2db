@@ -54,7 +54,7 @@ module.exports = class Member extends Base {
       foreignKey: 'member_id',
     });
 
-    await super.sync(true);
+    await super.sync(force);
   }
 
   async getAll(orgName, logger) {
