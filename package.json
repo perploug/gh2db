@@ -4,11 +4,12 @@
   "description": "node.js app to collect github data",
   "main": "index.js",
   "scripts": {
-    "start": "node cli.js",
+    "build": "tsc",
+    "start": "node ./built/cli.js",
     "test": "eslint ."
   },
   "bin": {
-    "gh2db": "./cli.js"
+    "gh2db": "./built/cli.js"
   },
   "repository": {
     "type": "git",
@@ -40,6 +41,9 @@
     "sqlite3": "^5.0.8"
   },
   "devDependencies": {
-    "eslint": "^8.15.0"
+    "@octokit/openapi-types": "^14.0.0",
+    "@types/node": "^18.8.2",
+    "eslint": "^8.15.0",
+    "typescript": "^4.8.4"
   }
 }
