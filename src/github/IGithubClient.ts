@@ -1,4 +1,4 @@
-interface IGithubClient {
+export interface IGithubClient {
   token: any;
   url: string;
   api: {

@@ -1,6 +1,7 @@
 const ghrequestor = require('ghrequestor');
 const graphql = require('@octokit/graphql');
 import { components } from '@octokit/openapi-types';
+import { IGithubClient } from './IGithubClient';
 
 type Repository = components['schemas']['full-repository'];
 type RepositorySimple = components['schemas']['simple-repository'];
@@ -200,7 +201,7 @@ export class GithubClient implements IGithubClient {
     return response.body;
   }
 
-  async getReadme(org, repo) {
+  async getReadme(org, repo): Promise<string> {
     const response = await this.requestorTemplate.get(
       this.api.readmeForRepo(org, repo)
     );

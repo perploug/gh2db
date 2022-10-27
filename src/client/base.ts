@@ -1,8 +1,9 @@
 import { Sequelize } from 'sequelize/types';
 import { Op } from 'sequelize';
+import helper from './helper.js';
+import mapper from 'object-mapper';
 
-import helper = require('./helper.js');
-import mapper = require('object-mapper');
+//const mapper = require('object-mapper');
 import { GithubClient } from '../github/GithubClient.js';
 
 export abstract class Base {
