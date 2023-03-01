@@ -46,7 +46,7 @@ module.exports = class Commit extends Base {
     await super.sync(force);
   }
 
-  async getAll(orgName, repoName) {
-    return await this.ghClient.getCommits(orgName, repoName);
+  async getAll(orgName, repoName, since = null) {
+    return await this.ghClient.getCommits(orgName, repoName, since);
   }
 };

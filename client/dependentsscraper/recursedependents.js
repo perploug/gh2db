@@ -15,7 +15,6 @@ async function recurseDependents({
   const response = await fetch(url);
 
   if (!response.ok) {
-    console.log('error in getting dependents from scraping');
     return entries;
   }
 

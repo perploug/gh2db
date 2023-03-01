@@ -59,7 +59,7 @@ module.exports = class Repository extends Base {
       stargazers_count: 'stars',
       open_issues_count: 'open_issues',
       watchers_count: 'watchers',
-
+      type: 'type',
       fork: 'fork',
       archived: 'archived',
       disabled: 'disabled',

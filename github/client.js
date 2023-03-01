@@ -1,103 +1,109 @@
 const ghrequestor = require('ghrequestor');
-const graphql = require('@octokit/graphql');
+const { graphql } = require('@octokit/graphql');
+
+const { Octokit } = require('@octokit/core');
+const { paginateGraphql } = require('@octokit/plugin-paginate-graphql');
 
 module.exports = class GithubClient {
   constructor(token, baseUrl = 'https://api.github.com') {
     this.token = token;
     this.url = baseUrl;
 
+    const MyOctokit = Octokit.plugin(paginateGraphql);
+    this.octokit = new MyOctokit({ auth: this.token });
+
     this.api = {
-      organisations: `${this.url}/organizations`,
-      userOrganisations: `${this.url}/user/orgs`,
-      organisation: (org) => {
-        return `${this.url}/orgs/${org}`;
-      },
-
-      rateLimit: () => {
-        return `${this.url}/rate_limit`;
-      },
-
-      repositories: (org) => {
-        return `${this.url}/orgs/${org}/repos?type=all`;
-      },
-
-      repository: (org, repo) => {
-        return `${this.url}/repos/${org}/${repo}`;
-      },
-
-      pullRequests: (owner, repo, state = 'all') => {
-        return `${this.url}/repos/${owner}/${repo}/pulls?state=${state}`;
-      },
-
-      commits: (owner, repo) => {
-        return `${this.url}/repos/${owner}/${repo}/commits`;
-      },
-
-      issues: (org, filter = 'all', state = 'all') => {
-        return `${this.url}/orgs/${org}/issues?filter=${filter}&state=${state}`;
-      },
-      issuesForRepo: (org, repo, state = 'all') => {
-        return `${this.url}/repos/${org}/${repo}/issues?state=${state}`;
-      },
-      members: (org) => {
-        return `${this.url}/orgs/${org}/members`;
-      },
-      communityProfile: (owner, name) => {
-        return `${this.url}/repos/${owner}/${name}/community/profile`;
-      },
-      webhooks: (owner, name) => {
-        return `${this.url}/repos/${owner}/${name}/hooks`;
-      },
       branchProtection: (owner, name, branch = 'master') => {
         return `${this.url}/repos/${owner}/${name}/branches/${branch}/protection`;
-      },
-      externalCollaboratorsForOrg: (org) => {
-        return `${this.url}/orgs/${org}/outside_collaborators`;
       },
       collaborators: (org, repo) => {
         return `${this.url}/repos/${org}/${repo}/collaborators`;
       },
-      contributorStatsForRepo: (org, repo) => {
-        return `${this.url}/repos/${org}/${repo}/stats/contributors`;
+      commits: (owner, repo, since = null) => {
+        let url = `${this.url}/repos/${owner}/${repo}/commits`;
+        if (since) {
+          url = `${url}?since=${since.toISOString()}`;
+        }
+
+        return url;
+      },
+      communityProfile: (owner, name) => {
+        return `${this.url}/repos/${owner}/${name}/community/profile`;
       },
       contributorsForRepo: (org, repo) => {
         return `${this.url}/repos/${org}/${repo}/contributors`;
       },
-
-      topicsForRepo: (org, repo) => {
-        return `${this.url}/repos/${org}/${repo}/topics`;
+      contributorStatsForRepo: (org, repo) => {
+        return `${this.url}/repos/${org}/${repo}/stats/contributors`;
       },
-
-      releasesForRepo: (org, repo) => {
-        return `${this.url}/repos/${org}/${repo}/releases`;
+      externalCollaboratorsForOrg: (org) => {
+        return `${this.url}/orgs/${org}/outside_collaborators`;
       },
-
-      readmeForRepo: (org, repo) => {
-        return `${this.url}/repos/${org}/${repo}/readme`;
-      },
-
-      pagesForRepo: (org, repo) => {
-        return `${this.url}/repos/${org}/${repo}/pages`;
-      },
-
-      memberEvents: (member) => {
-        return `${this.url}/users/${member}/events/public`;
-      },
-
-      memberRepositories: (member) => {
-        return `${this.url}/users/${member}/repos?type=owner`;
-      },
-
       fileContents: (org, repo, path) => {
         return `${this.url}/repos/${org}/${repo}/contents/${path}`;
       },
+      issues: (org, filter = 'all', state = 'all') => {
+        return `${this.url}/orgs/${org}/issues?filter=${filter}&state=${state}`;
+      },
+      issuesForRepo: (org, repo, since = null, state = 'all') => {
+        let url = `${this.url}/repos/${org}/${repo}/issues?state=${state}`;
+        if (since) {
+          url = `${url}&since=${since.toISOString()}`;
+        }
 
+        return url;
+      },
       listFiles: (org, repo, path) => {
         return `${this.url}/repos/${org}/${repo}/contents/${path}`;
       },
+      memberEvents: (member) => {
+        return `${this.url}/users/${member}/events/public`;
+      },
+      memberRepositories: (member) => {
+        return `${this.url}/users/${member}/repos?type=owner`;
+      },
+      members: (org) => {
+        return `${this.url}/orgs/${org}/members`;
+      },
+      organisation: (org) => {
+        return `${this.url}/orgs/${org}`;
+      },
+      organisations: `${this.url}/organizations`,
+      pagesForRepo: (org, repo) => {
+        return `${this.url}/repos/${org}/${repo}/pages`;
+      },
+      pullRequests: (owner, repo, since = null, state = 'all') => {
+        let url = `${this.url}/repos/${owner}/${repo}/pulls?state=${state}`;
+        if (since) {
+          url = `${url}&since=${since.toISOString()}`;
+        }
 
+        return url;
+      },
+      rateLimit: () => {
+        return `${this.url}/rate_limit`;
+      },
+      readmeForRepo: (org, repo) => {
+        return `${this.url}/repos/${org}/${repo}/readme`;
+      },
+      releasesForRepo: (org, repo) => {
+        return `${this.url}/repos/${org}/${repo}/releases`;
+      },
+      repositories: (org) => {
+        return `${this.url}/orgs/${org}/repos?type=all`;
+      },
+      repository: (org, repo) => {
+        return `${this.url}/repos/${org}/${repo}`;
+      },
+      topicsForRepo: (org, repo) => {
+        return `${this.url}/repos/${org}/${repo}/topics`;
+      },
       user: (user) => {
         return `${this.url}/users/${user}`;
+      },
+      userOrganisations: `${this.url}/user/orgs`,
+      webhooks: (owner, name) => {
+        return `${this.url}/repos/${owner}/${name}/hooks`;
       },
     };
 
@@ -202,9 +208,59 @@ module.exports = class GithubClient {
     else return [];
   }
 
+  async getDependencyGraph(org, repo) {
+    try {
+      const response = await this.octokit.graphql.paginate(
+        `
+          query paginate($cursor: String, $owner: String!, $repo: String!) {
+            repository(owner: $owner, name: $repo) {
+              dependencyGraphManifests(first: 50, after: $cursor) {
+                totalCount
+                nodes {
+                  filename
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+                edges {
+                  node {
+                    blobPath
+                    dependencies {
+                      totalCount
+                      nodes {
+                        packageName
+                        requirements
+                        hasDependencies
+                        packageManager
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        {
+          owner: org,
+          repo: repo,
+          headers: {
+            authorization: `token ${this.token}`,
+            accept: 'application/vnd.github.hawkgirl-preview+json',
+          },
+        }
+      );
+
+      return response.repository.dependencyGraphManifests.edges;
+    } catch (e) {
+      console.log(e);
+      return new Error(e);
+    }
+  }
+
   async getVulnerabilityAlerts(org) {
     try {
-      var response = await graphql(
+      var response = await this.octokit.graphql(
         `
           query vulnerBilityAlers($owner: String!) {
             organization(login: $owner) {
@@ -258,7 +314,7 @@ module.exports = class GithubClient {
         }
       );
 
-      return response.organization.repositories.edges.map((x) => x.node);
+      return response.oorganization.repositories.edges.map((x) => x.node);
     } catch (e) {
       console.log(e);
       return new Error(e);
@@ -299,9 +355,9 @@ module.exports = class GithubClient {
     return response;
   }
 
-  async getPullRequests(org, repo) {
+  async getPullRequests(org, repo, since = null) {
     return await this.requestorTemplate.getAll(
-      this.api.pullRequests(org, repo)
+      this.api.pullRequests(org, repo, since)
     );
   }
 
@@ -311,10 +367,10 @@ module.exports = class GithubClient {
     );
   }
 
-  async getCommits(org, repo) {
+  async getCommits(org, repo, since = null) {
     try {
       var result = await this.requestorTemplate.getAll(
-        this.api.commits(org, repo)
+        this.api.commits(org, repo, since)
       );
 
       if (result && result.length) {
@@ -327,8 +383,10 @@ module.exports = class GithubClient {
     }
   }
 
-  async getIssues(org, repo = null) {
-    var url = repo ? this.api.issuesForRepo(org, repo) : this.api.issues(org);
+  async getIssues(org, repo = null, since = null) {
+    var url = repo
+      ? this.api.issuesForRepo(org, repo, since)
+      : this.api.issues(org);
     return await this.requestorTemplate.getAll(url);
   }
 

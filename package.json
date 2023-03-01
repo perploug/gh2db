@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/perploug/gh2db#readme",
   "dependencies": {
-    "@octokit/graphql": "^2.0.1",
+    "@octokit/core": "^4.1.0",
+    "@octokit/plugin-paginate-graphql": "^2.0.1",
     "cached-request": "^3.0.0",
     "cheerio": "^1.0.0-rc.10",
     "command-line-args": "^5.0.2",

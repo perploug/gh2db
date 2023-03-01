@@ -18,6 +18,7 @@ const Metrics = require('./metrics.js');
 const Base = require('./base.js');
 const Dependents = require('./dependents.js');
 const Dependency = require('./dependency.js');
+const DependencyHealth = require('./dependencyhealth.js');
 
 module.exports = async function (
   github,
@@ -60,6 +61,9 @@ module.exports = async function (
 
   s.Dependency = new Dependency(github, database);
   s.Dependency.define();
+
+  s.DependencyHealth = new DependencyHealth(github, database);
+  s.DependencyHealth.define();
 
   s.Issue = new Issue(github, database);
   s.Issue.define();
@@ -104,6 +108,7 @@ module.exports = async function (
   await s.Contribution.sync(reset);
   await s.Dependents.sync(reset);
   await s.Dependency.sync(reset);
+  await s.DependencyHealth.sync(reset);
 
   await s.Issue.sync(reset);
   await s.CommunityProfile.sync(reset);

@@ -1,26 +1,28 @@
 var util = require('../../util.js');
 
-module.exports = async function (context, config) {
-  var orgs = await context.client.Organisation.getForUser();
+module.exports = {
+  run: async function (context, config) {
+    var orgs = await context.client.Organisation.getForUser();
 
-  if (!orgs || !orgs.length) {
-    orgs = [];
-  }
+    if (!orgs || !orgs.length) {
+      orgs = [];
+    }
 
-  var orgsToQuery = orgs
-    .map((x) => x.login)
-    .concat(config.orgs.filter((x) => x !== '*'))
-    .filter(util.uniqueFilter);
+    var orgsToQuery = orgs
+      .map((x) => x.login)
+      .concat(config.orgs.filter((x) => x !== '*'))
+      .filter(util.uniqueFilter);
 
-  for (let orgName of orgsToQuery) {
-    if (util.runTask(orgName, config.orgs)) {
-      var details = await context.client.Organisation.getDetails(orgName);
-      if (details && details.type === 'Organization') {
-        details = await context.client.Organisation.saveOrUpdate(details);
-        console.log(` ✓ Downloaded and saved ${orgName} github organisation`);
+    for (let orgName of orgsToQuery) {
+      if (util.runTask(orgName, config.orgs)) {
+        var details = await context.client.Organisation.getDetails(orgName);
+        if (details && details.type === 'Organization') {
+          details = await context.client.Organisation.saveOrUpdate(details);
+          console.log(` ✓ Downloaded and saved ${orgName} github organisation`);
+        }
       }
     }
-  }
 
-  return;
+    return;
+  },
 };

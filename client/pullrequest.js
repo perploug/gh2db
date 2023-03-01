@@ -54,7 +54,7 @@ module.exports = class PullRequest extends Base {
     await super.sync(force);
   }
 
-  async getAll(orgName, repoName) {
-    return await this.ghClient.getPullRequests(orgName, repoName);
+  async getAll(orgName, repoName, since = null) {
+    return await this.ghClient.getPullRequests(orgName, repoName, since);
   }
 };

@@ -1,6 +1,5 @@
 const Base = require('./base.js');
 const Sequelize = require('sequelize');
-const helper = require('./helper.js');
 const dependents = require('./dependentsscraper/index');
 
 module.exports = class Dependents extends Base {

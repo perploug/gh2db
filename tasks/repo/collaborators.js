@@ -1,14 +1,17 @@
-module.exports = async function (repo, context, config) {
-  await context.client.Collaborator.destroy(repo.id);
+module.exports = {
+  target: ['internal'],
+  run: async function (repo, context, config) {
+    await context.client.Collaborator.destroy(repo.id);
 
-  var collaborators = await context.client.Collaborator.getAll(
-    repo.owner,
-    repo.name
-  );
+    var collaborators = await context.client.Collaborator.getAll(
+      repo.owner,
+      repo.name
+    );
 
-  await context.client.Collaborator.bulkCreate(collaborators, {
-    repository_id: repo.id,
-  });
+    await context.client.Collaborator.bulkCreate(collaborators, {
+      repository_id: repo.id,
+    });
 
-  return true;
+    return true;
+  },
 };

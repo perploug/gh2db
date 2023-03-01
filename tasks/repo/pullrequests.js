@@ -1,8 +1,25 @@
-module.exports = async function (repo, context, config) {
-  await context.client.PullRequest.destroy(repo.id);
+const util = require('./../../util');
 
-  var prs = await context.client.PullRequest.getAll(repo.owner, repo.name);
-  await context.client.PullRequest.bulkCreate(prs, { repository_id: repo.id });
+module.exports = {
+  target: ['internal', 'external'],
+  run: async function (repo, context, config) {
+    let since = null;
+    if (config.settings && config.settings.maxDays) {
+      since = util.getDateXDaysAgo(config.settings.maxDays);
+    }
+    const prs = await context.client.PullRequest.getAll(
+      repo.owner,
+      repo.name,
+      since
+    );
 
-  return true;
+    if (prs && prs.length > 0) {
+      await context.client.PullRequest.destroy(repo.id);
+      await context.client.PullRequest.bulkCreate(prs, {
+        repository_id: repo.id,
+      });
+    }
+
+    return true;
+  },
 };

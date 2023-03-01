@@ -7,8 +7,10 @@ module.exports = class Metrics extends Base {
   constructor(githubClient, databaseClient) {
     super(githubClient, databaseClient);
 
-    // this schema is intended to accumulate metrics over time, so we will not, store under the repository ID
-    // but rather a seperate ID and a timestamp 300 projects * 365 days = 110.000 records per year... we should prune this eventually...
+    // this schema is intended to accumulate metrics over time, so we will not,
+    // store under the repository ID
+    // but rather a seperate ID and a timestamp 300 projects * 365 days = 110.000 records per year...
+    // we should prune this eventually...
     this.schema = {
       id: {
         type: Sequelize.BIGINT,

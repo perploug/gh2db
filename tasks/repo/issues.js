@@ -1,8 +1,22 @@
-module.exports = async function (repo, context, config) {
-  await context.client.Issue.destroy(repo.id);
+const util = require('./../../util');
 
-  var issues = await context.client.Issue.getAll(repo.owner, repo.name);
-  await context.client.Issue.bulkCreate(issues, { repository_id: repo.id });
+module.exports = {
+  target: ['internal'],
+  run: async function (repo, context, config) {
+    let since = null;
+    if (config.settings && config.settings.maxDays) {
+      since = util.getDateXDaysAgo(config.settings.maxDays);
+    }
 
-  return true;
+    var issues = await context.client.Issue.getAll(
+      repo.owner,
+      repo.name,
+      since
+    );
+
+    await context.client.Issue.destroy(repo.id);
+    await context.client.Issue.bulkCreate(issues, { repository_id: repo.id });
+
+    return true;
+  },
 };

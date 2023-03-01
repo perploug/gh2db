@@ -1,9 +1,6 @@
-const fs = require('fs');
-var path = require('path');
-
 const { performance } = require('perf_hooks');
 
-const barlogger = function() {
+const barlogger = function () {
   const result = {};
   result.log = () => {
     process.stdout.write('.');
@@ -11,7 +8,7 @@ const barlogger = function() {
   return result;
 };
 
-const runTask = function(task, filter) {
+const runTask = function (task, filter) {
   if (filter.indexOf(`!${task}`) > -1) return false;
   if (filter === '*' || filter.indexOf('*') > -1 || filter.indexOf(task) > -1)
     return true;
@@ -19,7 +16,7 @@ const runTask = function(task, filter) {
   return false;
 };
 
-const timePassed = function(startTime) {
+const timePassed = function (startTime) {
   var duration = performance.now() - startTime;
 
   var milliseconds = (duration % 1000) / 100,
@@ -36,89 +33,18 @@ const timePassed = function(startTime) {
   );
 };
 
-var getTasks = function(dir, filter) {
-  var tasks = [];
-  var globalPath = __dirname + '/tasks/' + dir + '/';
-  var localPath = process.cwd() + '/' + dir + '/';
+const getDateXDaysAgo = function (numOfDays, date = new Date()) {
+  const daysAgo = new Date(date.getTime());
 
-  var allowTask = function(filename) {
-    var key = (dir + '/' + filename.replace('.js', '')).toLowerCase();
+  daysAgo.setDate(date.getDate() - numOfDays);
 
-    if (filter.indexOf(`!${dir}/*`) > -1) return false;
-    if (filter.indexOf(`!${key}`) > -1) return false;
-
-    if (
-      filter.indexOf('*') > -1 ||
-      filter.indexOf(key) > -1 ||
-      filter.indexOf(dir + '/*') > -1
-    )
-      return true;
-  };
-
-  if (fs.existsSync(globalPath)) {
-    for (const file of fs.readdirSync(globalPath)) {
-      if (allowTask(file)) tasks.push(globalPath + file);
-    }
-  }
-  if (fs.existsSync(localPath)) {
-    for (const file of fs.readdirSync(localPath)) {
-      if (allowTask(file)) tasks.push(localPath + file);
-    }
-  }
-
-  return tasks;
+  return daysAgo;
 };
 
-var getClients = function() {
-  var tasks = [];
-  var localPath = process.cwd() + '/client/';
-
-  if (fs.existsSync(localPath)) {
-    for (const file of fs
-      .readdirSync(localPath)
-      .filter(x => path.extname(x) === '.js')) {
-      tasks.push(localPath + file);
-    }
-  }
-
-  return tasks;
-};
-
-const minimalConfig = {
-  github: {
-    token: ''
-  },
-
-  tasks: ['*'],
-  orgs: ['*']
-};
-
-// default config
-const defaultConfig = {
-  github: {
-    token: '',
-    url: {
-      git: 'https://github.com',
-      api: 'https://api.github.com',
-      raw: 'https://raw.githubusercontent.com'
-    }
-  },
-
-  tasks: ['*'],
-  orgs: ['*'],
-
-  db: {
-    database: 'roadblock',
-    dialect: 'sqlite',
-    storage: './roadblock.sqlite',
-    host: 'localhost'
-  },
-
-  export: {
-    storage: './'
-  },
-
-  externalProjects: []
+const delay = function (n) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, n * 1000);
+  });
 };
 
 const uniqueFilter = (value, index, self) => {
@@ -128,10 +54,8 @@ const uniqueFilter = (value, index, self) => {
 module.exports = {
   barlogger,
   runTask,
-  getTasks,
-  getClients,
   timePassed,
-  defaultConfig,
-  minimalConfig,
-  uniqueFilter
+  delay,
+  uniqueFilter,
+  getDateXDaysAgo,
 };
